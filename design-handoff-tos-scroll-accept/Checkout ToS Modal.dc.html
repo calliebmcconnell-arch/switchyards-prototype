@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;1,400&amp;family=IBM+Plex+Mono:wght@400;500&amp;family=Instrument+Sans:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  a { color: #1e2a5e; }
+  a:hover { color: #34459a; }
+  @keyframes scDown { 0%,100% { transform: translateY(0); opacity:.55 } 50% { transform: translateY(4px); opacity:1 } }
+  @keyframes overlayIn { from { opacity: 0 } to { opacity: 1 } }
+  @keyframes sheetInDesktop { from { opacity:0; transform: translateY(14px) scale(.985) } to { opacity:1; transform: translateY(0) scale(1) } }
+  @keyframes sheetInMobile { from { transform: translateY(100%) } to { transform: translateY(0) } }
+  @keyframes popIn { 0% { transform: scale(.4); opacity:0 } 60% { transform: scale(1.12) } 100% { transform: scale(1); opacity:1 } }
+  ::-webkit-scrollbar { width: 10px; }
+  ::-webkit-scrollbar-thumb { background: rgba(30,42,94,.22); border-radius: 8px; border: 3px solid transparent; background-clip: padding-box; }
+</style>
+</helmet>
+
+<div style="position:relative; min-height:100vh; width:100%; background:#f4f1e9; font-family:'Instrument Sans',system-ui,sans-serif; color:#1e2a5e; overflow-x:hidden;">
+
+  <!-- ===== CHECKOUT PAGE (dims behind modal) ===== -->
+  <div style="filter: {{ pageFilter }}; transition: filter .28s ease; pointer-events: {{ pagePointer }};">
+    <div style="max-width:1500px; margin:0 auto; padding:34px 46px 90px;">
+
+      <!-- logo -->
+      <div style="width:44px; height:44px; border-radius:50%; background:#1e2a5e; color:#f4f1e9; display:flex; align-items:center; justify-content:center; font-family:'Spectral',serif; font-weight:600; font-size:22px; letter-spacing:-1px;">S</div>
+
+      <h1 style="font-family:'Spectral',serif; font-weight:500; font-size:30px; margin:40px 0 6px; letter-spacing:-.3px;">Member Checkout</h1>
+      <a href="#" style="font-family:'IBM Plex Mono',monospace; font-size:12.5px; text-decoration:underline; text-underline-offset:3px;">Back to plans</a>
+
+      <div style="display:flex; gap:64px; margin-top:52px; align-items:flex-start; flex-wrap:wrap;">
+
+        <!-- LEFT: summary -->
+        <div style="flex:1 1 440px; min-width:320px;">
+          <h2 style="font-family:'Spectral',serif; font-weight:500; font-size:27px; margin:0 0 18px; letter-spacing:-.3px;">Almost there — we're ready for you!</h2>
+          <div style="height:2px; background:#1e2a5e;"></div>
+
+          <div style="display:flex; justify-content:space-between; align-items:baseline; padding:20px 0 18px; border-bottom:1px dotted rgba(30,42,94,.35);">
+            <span style="font-family:'IBM Plex Mono',monospace; font-size:13px;">Your Home Club</span>
+            <span style="font-family:'Spectral',serif; font-size:22px; font-weight:500;">Hampton Park Terrace</span>
+          </div>
+
+          <div style="display:flex; justify-content:space-between; padding:16px 0 14px; border-bottom:1px dotted rgba(30,42,94,.35);">
+            <div>
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:13px; text-decoration:line-through; opacity:.55;">Setup Fee</div>
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; opacity:.6; margin-top:5px;">Covers activation of your membership.</div>
+            </div>
+            <span style="font-family:'IBM Plex Mono',monospace; font-size:15px; text-decoration:line-through; opacity:.55;">$94.50</span>
+          </div>
+
+          <div style="display:flex; justify-content:space-between; padding:16px 0 14px; border-bottom:1px dotted rgba(30,42,94,.35);">
+            <div>
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:13px;">Switchyards Annual Membership</div>
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; opacity:.6; margin-top:5px;">Billed annually starting today.</div>
+            </div>
+            <span style="font-family:'IBM Plex Mono',monospace; font-size:15px;">$1200.00</span>
+          </div>
+
+          <div style="padding:16px 0 14px; border-bottom:1px dotted rgba(30,42,94,.35);">
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:13px; margin-bottom:12px;">No hidden fees, ever.</div>
+            <a href="#" style="font-family:'IBM Plex Mono',monospace; font-size:12.5px; text-decoration:underline; text-underline-offset:3px;">Got a promo code?</a>
+          </div>
+
+          <div style="display:flex; justify-content:space-between; align-items:baseline; padding-top:20px;">
+            <span style="font-family:'Spectral',serif; font-size:22px; font-weight:500;">Total Due Today</span>
+            <span style="font-family:'IBM Plex Mono',monospace; font-size:18px;">$1200.00</span>
+          </div>
+        </div>
+
+        <!-- vertical divider -->
+        <div style="width:1px; align-self:stretch; background:rgba(30,42,94,.18);" data-dc-hide-narrow=""></div>
+
+        <!-- RIGHT: payment -->
+        <div style="flex:1 1 440px; min-width:320px;">
+          <h2 style="font-family:'Spectral',serif; font-weight:500; font-size:27px; margin:0 0 22px; letter-spacing:-.3px;">Choose a Payment Method</h2>
+
+          <input placeholder="Email" style="width:100%; padding:13px 14px; border:1px solid rgba(30,42,94,.25); border-radius:7px; background:#fdfcf8; font-family:'IBM Plex Mono',monospace; font-size:13px; color:#1e2a5e; margin-bottom:16px; outline:none;">
+
+          <div style="border:1px solid rgba(30,42,94,.18); border-radius:10px; padding:18px 18px 20px; background:#fdfcf8;">
+            <label style="display:block; font-size:13px; margin-bottom:6px;">Full name</label>
+            <input style="width:100%; padding:11px 12px; border:1px solid rgba(30,42,94,.22); border-radius:7px; background:#fff; margin-bottom:16px; outline:none; font-family:inherit; font-size:14px;">
+
+            <label style="display:block; font-size:13px; margin-bottom:6px;">Country or region</label>
+            <div style="position:relative; margin-bottom:16px;">
+              <select style="width:100%; padding:11px 12px; border:1px solid rgba(30,42,94,.22); border-radius:7px; background:#fff; outline:none; font-family:inherit; font-size:14px; color:#1e2a5e; appearance:none;">
+                <option>United States</option>
+              </select>
+              <span style="position:absolute; right:14px; top:50%; transform:translateY(-50%); pointer-events:none; font-size:11px; opacity:.5;">▼</span>
+            </div>
+
+            <label style="display:block; font-size:13px; margin-bottom:6px;">Address</label>
+            <input style="width:100%; padding:11px 12px; border:1px solid rgba(30,42,94,.22); border-radius:7px; background:#fff; outline:none; font-family:inherit; font-size:14px;">
+          </div>
+
+          <div style="border:1px solid rgba(30,42,94,.18); border-radius:10px; margin-top:16px; background:#fdfcf8; overflow:hidden;">
+            <div style="display:flex; align-items:center; gap:10px; padding:15px 18px; border-bottom:1px solid rgba(30,42,94,.12);">
+              <div style="width:26px; height:18px; border-radius:3px; background:#1e2a5e;"></div>
+              <span style="font-size:14px; font-weight:600;">Card</span>
+            </div>
+            <div style="padding:16px 18px 18px;">
+              <div style="display:flex; gap:14px; flex-wrap:wrap;">
+                <div style="flex:2 1 200px;">
+                  <label style="display:block; font-size:12.5px; margin-bottom:6px;">Card number</label>
+                  <input placeholder="1234 1234 1234 1234" style="width:100%; padding:11px 12px; border:1px solid rgba(30,42,94,.22); border-radius:7px; background:#fff; outline:none; font-family:'IBM Plex Mono',monospace; font-size:13px;">
+                </div>
+                <div style="flex:1 1 90px;">
+                  <label style="display:block; font-size:12.5px; margin-bottom:6px;">Expiration date</label>
+                  <input placeholder="MM / YY" style="width:100%; padding:11px 12px; border:1px solid rgba(30,42,94,.22); border-radius:7px; background:#fff; outline:none; font-family:'IBM Plex Mono',monospace; font-size:13px;">
+                </div>
+                <div style="flex:1 1 90px;">
+                  <label style="display:block; font-size:12.5px; margin-bottom:6px;">Security code</label>
+                  <input placeholder="CVC" style="width:100%; padding:11px 12px; border:1px solid rgba(30,42,94,.22); border-radius:7px; background:#fff; outline:none; font-family:'IBM Plex Mono',monospace; font-size:13px;">
+                </div>
+              </div>
+              <p style="font-size:12px; opacity:.6; line-height:1.5; margin:14px 0 0;">By providing your card information, you allow Switchyards to charge your card for future payments in accordance with their terms.</p>
+            </div>
+          </div>
+
+          <div style="border:1px solid rgba(30,42,94,.18); border-radius:10px; margin-top:14px; background:#fdfcf8; padding:15px 18px; display:flex; align-items:center; gap:10px;">
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; border:1px solid rgba(30,42,94,.3); border-radius:5px; padding:2px 6px;">G Pay</div>
+            <span style="font-size:14px;">Google Pay</span>
+          </div>
+
+          <!-- ===== AGREEMENT ROW (locked -> enabled) ===== -->
+          <div style="margin-top:26px; padding:16px 16px; border-radius:10px; background:{{ agreeRowBg }}; border:1px solid {{ agreeRowBorder }}; transition:background .3s ease, border-color .3s ease;">
+            <div style="display:flex; align-items:flex-start; gap:12px;">
+              <button onClick="{{ onCheckboxClick }}" aria-label="agree" style="flex:none; margin-top:1px; width:20px; height:20px; border-radius:5px; border:1.5px solid {{ boxBorder }}; background:{{ boxBg }}; display:flex; align-items:center; justify-content:center; cursor:{{ boxCursor }}; padding:0; transition:all .2s ease;">
+                <span style="font-size:12px; line-height:1; color:{{ boxGlyphColor }};">{{ boxGlyph }}</span>
+              </button>
+              <div style="flex:1;">
+                <div style="font-family:'IBM Plex Mono',monospace; font-size:12.5px; line-height:1.55; color:{{ agreeTextColor }};">{{ agreePrefix }}<a href="#" onClick="{{ openModal }}" style="text-decoration:underline; text-underline-offset:3px; font-weight:500; cursor:pointer;">{{ linkText }}</a>{{ agreeSuffix }}</div>
+                
+              </div>
+            </div>
+          </div>
+
+          <button style="width:100%; margin-top:16px; padding:16px; border:none; border-radius:999px; background:{{ payBg }}; color:{{ payColor }}; font-family:'IBM Plex Mono',monospace; font-size:14px; letter-spacing:2px; cursor:{{ payCursor }}; transition:all .25s ease;">Pay Now</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MODAL ===== -->
+  <sc-if value="{{ modalOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed; inset:0; z-index:50; background:rgba(20,26,52,.42); backdrop-filter:blur(2px); display:flex; align-items:{{ overlayAlign }}; justify-content:center; padding:{{ overlayPad }}; animation:overlayIn .25s ease;" onClick="{{ backdropClick }}">
+      <div onClick="{{ stopProp }}" style="width:{{ sheetWidth }}; max-width:100%; height:{{ sheetHeight }}; max-height:{{ sheetMaxH }}; background:#f8f6ef; border-radius:{{ sheetRadius }}; box-shadow:0 24px 70px rgba(20,26,52,.32); display:flex; flex-direction:column; overflow:hidden; animation:{{ sheetAnim }} .34s cubic-bezier(.2,.8,.2,1);">
+
+        <!-- header -->
+        <div style="flex:none; padding:24px 28px 18px; border-bottom:1px solid rgba(30,42,94,.12); position:relative;">
+          <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:#8a8578; margin-bottom:8px;">Membership Agreement</div>
+          <h2 style="font-family:'Spectral',serif; font-weight:500; font-size:24px; margin:0; letter-spacing:-.3px;">Switchyards Terms of Service</h2>
+          <p style="font-size:13px; opacity:.7; margin:8px 0 0; line-height:1.5; max-width:90%;">A quick read before you join — this protects both you and your club. Scroll through and you're all set.</p>
+          <button onClick="{{ closeModal }}" aria-label="Close" style="position:absolute; top:20px; right:20px; width:34px; height:34px; border-radius:50%; border:1px solid rgba(30,42,94,.18); background:#fff; color:#1e2a5e; font-size:16px; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center;">✕</button>
+          <!-- progress bar -->
+          <div style="height:3px; background:rgba(30,42,94,.1); border-radius:3px; margin-top:16px; overflow:hidden;">
+            <div style="height:100%; background:#1e2a5e; border-radius:3px; width: {{ scrollPct }}; transition:width .12s linear;"></div>
+          </div>
+        </div>
+
+        <!-- scrollable body -->
+        <div style="position:relative; flex:1; min-height:0; display:flex; flex-direction:column;">
+          <div onScroll="{{ onScroll }}" ref="{{ scrollRef }}" style="flex:1; min-height:0; overflow-y:auto; padding:26px 28px 40px; font-size:14px; line-height:1.72; color:#3a3f57;">
+            <p style="margin:0 0 16px;">These terms and conditions of use (“Terms”) constitute a legal agreement between you and Switchyards Inc. (“Switchyards”, “us”, “we”, or “our”) and govern your use of the online services Switchyards makes available to you as a member and licensee of a neighborhood work club managed by Switchyards or one of its subsidiaries or affiliated entities. Through the website and portal provided under these Terms (including related domains, sites, and mobile applications, the “Site”), you may access your Switchyards account and make use of other services accessible through the Site (the “Services”). These Terms also govern all visitors of the Site who are not members or licensees of the Site.</p>
+            <p style="margin:0 0 16px;">By (i) clicking an “Accept” or similar button, (ii) checking a box captioned with acceptance language, (iii) signing up for membership or an account on the Site, (iv) using the Services, or (vi) communicating or otherwise contacting Switchyards through the Site, you acknowledge that you have read and understand these Terms and that you agree to be bound by them. If you are using the Site on behalf of a company or other legal entity, the term “you” shall refer to such entity in addition to the individual user, and the individual accepting these Terms on behalf of such entity represents that he or she has the authority to bind the entity to these Terms.</p>
+            <div style="background:rgba(30,42,94,.05); border-left:3px solid #1e2a5e; border-radius:0 8px 8px 0; padding:12px 16px; margin:0 0 22px; font-family:'IBM Plex Mono',monospace; font-size:11.5px; line-height:1.6; letter-spacing:.2px; color:#1e2a5e;">YOU MAY NOT USE THIS SITE OR THE SERVICES IF YOU DO NOT AGREE TO THESE TERMS. PLEASE REVIEW THEM CAREFULLY.</div>
+
+            <div style="font-family:'Spectral',serif; font-weight:600; font-size:16px; color:#1e2a5e; margin:0 0 5px;">Rules</div>
+            <p style="margin:0 0 12px;">By signing up for Switchyards, you are agreeing to our rules. Both those that are outlined explicitly in the guidelines and those that need no communication (no shirt, no shoes, etc). If you violate the rules, your membership is eligible for cancellation.</p>
+            <p style="margin:0 0 20px;">If you violate rules of common courtesy or decency, then we reserve the right to cancel your membership. This includes, but is not limited to, verbal altercations with members or staff, lack of common respect to staff or members, sleeping in our spaces, leaving guests unattended, cheating any of our systems in any way, etc. etc.</p>
+
+            <div style="font-family:'Spectral',serif; font-weight:600; font-size:16px; color:#1e2a5e; margin:0 0 5px;">Guest Policy</div>
+            <p style="margin:0 0 20px;">Guests can attend with a member free of charge and are treated like members. Guests should be accompanied at all times in the space, and members will be held accountable for their guests’ actions in the space. In the instance that the guest policy is being taken advantage of or otherwise abused, Switchyards reserves the right to ask members to refrain from bringing guests or ask that guests consider purchasing their own membership.</p>
+
+            <div style="font-family:'Spectral',serif; font-weight:600; font-size:16px; color:#1e2a5e; margin:0 0 5px;">Cancellation</div>
+            <p style="margin:0 0 20px;">To cancel your membership, please visit the Member Hub, and select “Manage my account.”</p>
+
+            <div style="font-family:'Spectral',serif; font-weight:600; font-size:16px; color:#1e2a5e; margin:0 0 5px;">Refunds</div>
+            <p style="margin:0 0 12px;">For month-to-month memberships, refunds will be issued if payment was taken within 7 days of the cancellation request. If a cancellation request was submitted 7 days after the latest payment has been processed, then a refund will not be issued.</p>
+            <p style="margin:0 0 20px;">Due to the upfront discount received for annual memberships, refunds will not be issued, and your membership will remain active until the end of your contracted term.</p>
+
+            <div style="font-family:'Spectral',serif; font-weight:600; font-size:16px; color:#1e2a5e; margin:0 0 5px;">Membership</div>
+            <p style="margin:0 0 12px;">Switchyards reserves the right to cancel any member’s membership at any time without reason.</p>
+            <p style="margin:0 0 12px;">If Switchyards cancels a member’s membership and communicates that we are not interested in their membership in the future, then future membership is prohibited.</p>
+            <p style="margin:0 0 20px;">If Switchyards finds evidence of persons signing up for a new membership and visiting a Switchyards location after cede communication, then Switchyards reserves the right to charge the individual with unlawful entry.</p>
+
+            <div style="font-family:'Spectral',serif; font-weight:600; font-size:16px; color:#1e2a5e; margin:0 0 5px;">Weapons Policy</div>
+            <p style="margin:0 0 20px;">Switchyards does not allow weapons in our spaces.</p>
+
+            <div style="font-family:'Spectral',serif; font-weight:600; font-size:16px; color:#1e2a5e; margin:0 0 5px;">Drug and Alcohol Policy</div>
+            <p style="margin:0 0 20px;">Members are not permitted to consume alcohol in the club under any circumstances (unless it is a Switchyards-sponsored event). Drug paraphernalia of any kind is not allowed in the club.</p>
+
+            <div style="font-family:'Spectral',serif; font-weight:600; font-size:16px; color:#1e2a5e; margin:0 0 5px;">Filming Policy</div>
+            <p style="margin:0 0 20px;">Filming is not permitted in any public space in the club, as this may impact the experience of other members. Filming is permitted in Club Rooms and Phone Booths, as long as furniture is not moved and other members’ experiences are not impacted.</p>
+
+            <div style="font-family:'Spectral',serif; font-weight:600; font-size:16px; color:#1e2a5e; margin:0 0 5px;">License Agreements</div>
+            <p style="margin:0 0 20px;">The Services and password-protected portions of the Site are available only to those licensees who have entered into a License Agreement with Switchyards, and the employees and authorized users of such licensees as provided in the respective License Agreement. If you are not subject to a current License Agreement, you may only visit the publicly accessible portions of the Site.</p>
+
+            <div style="font-family:'Spectral',serif; font-weight:600; font-size:16px; color:#1e2a5e; margin:0 0 5px;">User Accounts</div>
+            <p style="margin:0 0 20px;">When you join Switchyards and register your online account, Switchyards will provide you with user credentials (such as a user name and password) to access the non-public portions of the Site. You agree not to give these credentials to anyone else or allow anyone else to use or access the private portal and other protected content. When registering for your account, you must provide true, accurate, current, and complete information about yourself, and you must continue to maintain and update the information you have provided so that it remains true, accurate, current, and complete so long as you continue to use the Site. Anonymous or false identities are not allowed on the Site.</p>
+
+            <div style="font-family:'Spectral',serif; font-weight:600; font-size:16px; color:#1e2a5e; margin:0 0 5px;">Payments</div>
+            <p style="margin:0 0 20px;">Switchyards may provide you with the ability to pay fees or purchase optional Services through the Site. Switchyards accepts payments by credit/debit card and automated clearing house (ACH) payments, and the Site is compliant with the data security standards promulgated by the PCI Security Standards Council. By submitting your payment information (whether on a one-time or recurring basis), you authorize Switchyards to charge your credit card or initiate ACH debits for all fees owed to Switchyards or its affiliates. All fees not paid when due will incur an interest charge of 1.5% per month or the highest rate permitted by law, whichever is less. You will be subject to additional fees and/or penalties for late payments, returned checks, or other declined payments due to insufficient funds, as referenced in the License Agreement. All fees listed are exclusive of taxes unless otherwise noted, and you agree to be responsible and hold Switchyards harmless for any taxes levied by applicable governmental authorities (including, without limitation, sales and use taxes and value-added taxes, where applicable).</p>
+
+            <div style="font-family:'Spectral',serif; font-weight:600; font-size:16px; color:#1e2a5e; margin:0 0 5px;">Lost and Found Policy</div>
+            <p style="margin:0 0 20px;">Lost items will be placed in the club lost and found and held for up to 30 days. After 30 days, Switchyards will discard unclaimed items.</p>
+
+            <div style="font-family:'Spectral',serif; font-weight:600; font-size:16px; color:#1e2a5e; margin:0 0 5px;">Pet Policy</div>
+            <p style="margin:0 0 20px;">Only registered service animals are allowed in Switchyards. Emotional support animals and pets are not permitted inside (but are welcome on outdoor patio areas).</p>
+
+            <div style="font-family:'Spectral',serif; font-weight:600; font-size:16px; color:#1e2a5e; margin:0 0 5px;">Privacy Policy</div>
+            <p style="margin:0 0 20px;">Your privacy is important to us. How we collect and use your information is described in our privacy policy, which is available at switchyards.com/privacy and is incorporated into these Terms.</p>
+
+            <div style="font-family:'Spectral',serif; font-weight:600; font-size:16px; color:#1e2a5e; margin:0 0 5px;">Audio and Visual Information</div>
+            <p style="margin:0 0 22px;">We may collect audio and visual information when you are using the club. For example, closed circuit video surveillance cameras (“CCTV”) may be installed at some of our retail locations to monitor building security and assist in crime prevention, detection, and investigation, and to ensure the safety of our staff and visitors to our facilities, and these CCTV cameras may collect audio, visual, and similar information. We may also use these CCTV cameras to assist in member identification and the enforcement of club rules.</p>
+
+            <h3 style="font-family:'Spectral',serif; font-weight:600; font-size:18px; color:#1e2a5e; margin:0 0 12px; padding-top:16px; border-top:1px solid rgba(30,42,94,.12);">Site and Services Contents</h3>
+
+            <div style="font-family:'Spectral',serif; font-weight:600; font-size:16px; color:#1e2a5e; margin:0 0 5px;">Ownership</div>
+            <p style="margin:0 0 20px;">Each of us shall maintain all rights, title and interest in and to all our respective patents, inventions, copyrights, trademarks, domain names, trade secrets, know-how and any other intellectual property and/or proprietary rights (collectively, “Intellectual Property Rights”). The rights granted to you to use the Site or the Service under these Terms do not convey any additional rights in the Site or the Service, or in any Intellectual Property Rights associated therewith.</p>
+
+            <div style="font-family:'Spectral',serif; font-weight:600; font-size:16px; color:#1e2a5e; margin:0 0 5px;">Information You Provide</div>
+            <p style="margin:0 0 20px;">You own the information you provide Switchyards or input on third party websites through the Services. You grant Switchyards a nonexclusive, revocable, worldwide, perpetual right to use, copy, prepare derivative works of, distribute, publish, remove, retain, add, process, or analyze the foregoing described information. By providing information to us or to third parties through the Site or the Services, you represent and warrant that you are entitled to and authorized to submit the information and that the information is accurate, not confidential, and not in violation of any contractual restrictions or other third party rights.</p>
+
+            <div style="font-family:'Spectral',serif; font-weight:600; font-size:16px; color:#1e2a5e; margin:0 0 5px;">Limited License</div>
+            <p style="margin:0 0 20px;">Upon registering for the Site or the Services and upon the condition that you comply with all of your obligations under these Terms, Switchyards grants you a non-exclusive, non-transferable, revocable license to access and use the Services (for the particular subscription purchased) and the Site, strictly in accordance with this Agreement and subject to all the limitations set forth in this Agreement.</p>
+
+            <div style="font-family:'Spectral',serif; font-weight:600; font-size:16px; color:#1e2a5e; margin:0 0 5px;">Confidentiality</div>
+            <p style="margin:0 0 20px;">In the course of using the Site or the Services, you may be exposed to information of a confidential or proprietary nature belonging to Switchyards, including but not limited to information regarding the Services and related technology, or information regarding Switchyards’s business, financial, or marketing activities. You agree that you will not disclose any such information to any third party without Switchyards’s express consent, and that you will not use such information except as expressly authorized by Switchyards.</p>
+
+            <div style="font-family:'Spectral',serif; font-weight:600; font-size:16px; color:#1e2a5e; margin:0 0 5px;">Prohibited Conduct</div>
+            <p style="margin:0 0 8px;">You may not modify, reverse engineer, or create derivative works of this Site; distribute or publicly display its contents for commercial purposes; scrape, copy, or distribute any other member’s personal information; send other users spam or unsolicited bulk messages; remove any proprietary notice; attempt to gain unauthorized access, interfere with the operation of the Site, or harm Switchyards or any user through hacking, data mining, viruses, or other means; or otherwise use the Site in any way not authorized by these Terms or in violation of any law.</p>
+            <p style="margin:0 0 22px;">Areas of the Site may have different terms of use posted. If there is a conflict between these Terms and terms posted for a specific area of the Site, the latter shall have precedence with respect to your use of that area.</p>
+
+            <div style="font-family:'Spectral',serif; font-weight:600; font-size:16px; color:#1e2a5e; margin:0 0 5px;">Indemnification</div>
+            <p style="margin:0 0 20px;">You agree that you remain responsible for the content that you submit or send using the Site. You agree to defend and hold harmless Switchyards and its affiliates, and their employees, contractors, directors, managers, officers, and representatives, from and against any damages, losses, or costs (including reasonable attorneys’ fees), arising from or in connection with any claim, suit, or action relating to: (i) your content; (ii) your use of the Site or Services; (iii) your violation of any right of a third party or applicable law; (iv) any property damage or personal injury caused by you; or (v) your breach of these Terms.</p>
+
+            <div style="font-family:'Spectral',serif; font-weight:600; font-size:16px; color:#1e2a5e; margin:0 0 5px;">Disclaimer of Warranty</div>
+            <p style="margin:0 0 20px;">The Site and all content therein, and any products and services offered through the Site, are provided on an “as-is” and “as-available” basis, without warranty of any kind. Switchyards and its licensors and suppliers expressly disclaim, to the fullest extent permitted by law, any and all warranties, express or implied, including implied warranties of merchantability, fitness for a particular purpose, title, and non-infringement. Switchyards makes no warranty that the Site or the Services will meet your needs or be error free or accurate.</p>
+
+            <div style="font-family:'Spectral',serif; font-weight:600; font-size:16px; color:#1e2a5e; margin:0 0 5px;">Limitations of Liability</div>
+            <p style="margin:0 0 20px;">To the maximum extent permitted by law, Switchyards will not be liable for any indirect, special, exemplary, or consequential damages, whether in contract, tort (including negligence), or otherwise. Switchyards’s aggregate liability for damages under these Terms shall be limited to the lesser of (i) actual damages incurred, or (ii) payments made by you for the goods or services during the six (6) months preceding the claim. The existence of multiple claims will not enlarge this limit.</p>
+
+            <div style="font-family:'Spectral',serif; font-weight:600; font-size:16px; color:#1e2a5e; margin:0 0 5px;">Changes to the Site or these Terms</div>
+            <p style="margin:0 0 20px;">The Site and Services and any of their features or content are subject to change from time to time. These Terms may be amended by Switchyards at any time. If changes to these Terms are significant, we will make reasonable efforts to notify you of the modified Terms. If you do not accept the modified Terms, we may terminate your access to the Site or Services, and if you continue to use the Site or Services after receiving notice, such use will constitute your acceptance of the modified Terms.</p>
+
+            <div style="font-family:'Spectral',serif; font-weight:600; font-size:16px; color:#1e2a5e; margin:0 0 5px;">Governing Law</div>
+            <p style="margin:0 0 22px;">This Site originates from the State of Georgia, USA. These Terms shall be governed by and construed in accordance with the laws of the State of Georgia, without regard to rules regarding conflicts of laws. Any action arising out of or relating to these Terms must be brought exclusively in the state or federal courts located in Atlanta, Georgia.</p>
+
+            <h3 style="font-family:'Spectral',serif; font-weight:600; font-size:18px; color:#1e2a5e; margin:0 0 12px; padding-top:16px; border-top:1px solid rgba(30,42,94,.12);">General</h3>
+            <p style="margin:0 0 12px;">These Terms constitute the final, complete, and exclusive agreement of the parties relating to the use of the Site and the Services, and supersede all prior discussions between the parties, except that written agreements signed by the parties shall supersede these Terms. The rights and remedies provided to Switchyards are cumulative and in addition to any others available at law or in equity.</p>
+            <p style="margin:0 0 12px;">You may not assign your rights or duties under these Terms without Switchyards’s express prior written consent. If any provision of these Terms is determined to be illegal or unenforceable, that provision will be limited or eliminated to the minimum extent necessary so that all other provisions remain in full force and effect. The parties are independent contractors; nothing herein creates a partnership, joint venture, or agency relationship. Headings are for convenience of reference only.</p>
+            <p style="margin:0 0 4px;">Still have questions? You can contact us via email at hey@switchyards.com.</p>
+
+            <!-- end marker -->
+            
+          </div>
+
+          <!-- fade + scroll cue (hidden once read) -->
+          <sc-if value="{{ showFade }}" hint-placeholder-val="{{ true }}">
+            <div style="position:absolute; left:0; right:10px; bottom:0; height:96px; background:linear-gradient(to top, #f8f6ef 8%, rgba(248,246,239,0)); pointer-events:none; display:flex; align-items:flex-end; justify-content:center; padding-bottom:14px;">
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.5px; color:#1e2a5e; display:flex; flex-direction:column; align-items:center; gap:2px; animation:scDown 1.6s ease-in-out infinite;">
+                <span>Scroll to continue</span>
+                <span style="font-size:14px;">↓</span>
+              </div>
+            </div>
+          </sc-if>
+        </div>
+
+        <!-- footer -->
+        <div style="flex:none; padding:16px 24px 20px; border-top:1px solid rgba(30,42,94,.12); background:#f4f1e9;">
+          <button onClick="{{ footerClick }}" style="width:100%; padding:15px; border:none; border-radius:999px; background:{{ footerBg }}; color:#f4f1e9; font-family:'IBM Plex Mono',monospace; font-size:13.5px; letter-spacing:1px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px; transition:background .3s ease;">
+            <sc-if value="{{ hasRead }}" hint-placeholder-val="{{ false }}">
+              <span style="display:inline-flex; width:20px; height:20px; border-radius:50%; background:#f4f1e9; color:#1e2a5e; align-items:center; justify-content:center; font-size:11px; animation:popIn .4s cubic-bezier(.2,.8,.2,1);">✓</span>
+            </sc-if>
+            {{ footerLabel }}
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;agreeLabel&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;I agree to the Switchyards Terms of Service&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Agreement&quot;}}">
+class Component extends DCLogic {
+  state = { modalOpen: false, hasRead: false, agreed: false, scrollPct: "0%", isMobile: false, atBottom: false };
+
+  componentDidMount() {
+    this._onResize = () => this.setState({ isMobile: window.innerWidth < 720 });
+    this._onResize();
+    window.addEventListener('resize', this._onResize);
+  }
+  componentWillUnmount() { window.removeEventListener('resize', this._onResize); }
+
+  openModal = (e) => { if (e) e.preventDefault(); this.setState({ modalOpen: true, atBottom: false, scrollPct: "0%" }); if (this._scroller) this._scroller.scrollTop = 0; };
+  closeModal = () => this.setState({ modalOpen: false });
+  stopProp = (e) => e.stopPropagation();
+  backdropClick = () => { if (this.state.isMobile) return; this.setState({ modalOpen: false }); };
+
+  scrollRef = (el) => { this._scroller = el; };
+
+  onScroll = (e) => {
+    const el = e.target;
+    const max = el.scrollHeight - el.clientHeight;
+    const pct = max > 0 ? Math.min(100, (el.scrollTop / max) * 100) : 100;
+    const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 28;
+    this.setState({ scrollPct: pct.toFixed(1) + "%", atBottom });
+    if (atBottom && !this.state.hasRead) this.setState({ hasRead: true });
+  };
+
+  footerClick = () => {
+    if (this.state.hasRead) { this.setState({ modalOpen: false, agreed: true }); return; }
+    if (this._scroller) this._scroller.scrollBy({ top: this._scroller.clientHeight * 0.85, behavior: 'smooth' });
+  };
+
+  onCheckboxClick = () => { if (this.state.hasRead) this.setState(s => ({ agreed: !s.agreed })); };
+
+  renderVals() {
+    const { modalOpen, hasRead, agreed, scrollPct, isMobile } = this.state;
+    const canPay = hasRead && agreed;
+
+    return {
+      modalOpen, hasRead, scrollPct,
+      openModal: this.openModal, closeModal: this.closeModal,
+      onScroll: this.onScroll, scrollRef: this.scrollRef,
+      footerClick: this.footerClick, onCheckboxClick: this.onCheckboxClick,
+      stopProp: this.stopProp, backdropClick: this.backdropClick,
+
+      showFade: !this.state.atBottom,
+
+      // page dim
+      pageFilter: modalOpen && !isMobile ? "blur(1.5px) brightness(.92)" : "none",
+      pagePointer: modalOpen ? "none" : "auto",
+
+      // agreement row
+      agreeRowBg: hasRead ? "rgba(255,255,255,0)" : "rgba(30,42,94,.035)",
+      agreeRowBorder: hasRead ? "rgba(30,42,94,0)" : "rgba(30,42,94,.12)",
+      boxBorder: !hasRead ? "rgba(30,42,94,.28)" : (agreed ? "#1e2a5e" : "#1e2a5e"),
+      boxBg: agreed && hasRead ? "#1e2a5e" : (hasRead ? "#fff" : "#e7e3d8"),
+      boxGlyph: agreed && hasRead ? "✓" : (hasRead ? "" : "🔒"),
+      boxGlyphColor: agreed && hasRead ? "#f4f1e9" : "#8a8578",
+      boxCursor: hasRead ? "pointer" : "not-allowed",
+      agreeTextColor: hasRead ? "#1e2a5e" : "#8a8578",
+      linkText: hasRead ? (this.props.agreeLabel ?? "I agree to the Switchyards Terms of Service") : "Switchyards Terms of Service",
+      agreePrefix: hasRead ? "" : "Please read ",
+      agreeSuffix: hasRead ? "" : " to continue",
+      agreeHint: hasRead ? "Thanks for reading — you're good to go." : "Tap the link above to open and read the terms.",
+      hintIcon: hasRead ? "✓" : "○",
+
+      // pay button
+      payBg: canPay ? "#1e2a5e" : "rgba(30,42,94,.28)",
+      payColor: canPay ? "#f4f1e9" : "rgba(244,241,233,.9)",
+      payCursor: canPay ? "pointer" : "not-allowed",
+
+      // modal layout (responsive)
+      overlayAlign: isMobile ? "stretch" : "center",
+      overlayPad: isMobile ? "0" : "40px 24px",
+      sheetWidth: isMobile ? "100%" : "560px",
+      sheetHeight: isMobile ? "100%" : "auto",
+      sheetMaxH: isMobile ? "100%" : "82vh",
+      sheetRadius: isMobile ? "0" : "16px",
+      sheetAnim: isMobile ? "sheetInMobile" : "sheetInDesktop",
+
+      // footer button
+      footerBg: hasRead ? "#1e7a4f" : "#1e2a5e",
+      footerLabel: hasRead ? "I accept" : "Keep Reading",
+    };
+  }
+}
+</script>
+</body>
+</html>
