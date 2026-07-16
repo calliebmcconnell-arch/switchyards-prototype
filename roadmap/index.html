@@ -3,10 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Switchyards — Roadmap (prototype)</title>
+<title>Switchyards — Roadmap</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   * { box-sizing: border-box; }
   html, body { margin:0; padding:0; }
@@ -20,8 +21,9 @@
   .col-list { display:flex; flex-direction:column; gap:14px; min-height:40px; border-radius:10px; transition:background .12s ease; }
   .col-list.drop-hint { background:rgba(27,42,120,.05); outline:2px dashed rgba(27,42,120,.35); outline-offset:4px; }
 
-  .card { position:relative; border-radius:8px; padding:17px; cursor:grab; transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease, opacity .12s ease; }
-  .card:active { cursor:grabbing; }
+  .card { position:relative; border-radius:8px; padding:17px; transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease, opacity .12s ease; }
+  body.can-edit .card { cursor:grab; }
+  body.can-edit .card:active { cursor:grabbing; }
   .card.dragging { opacity:.4; }
   .card[data-kind="active"]  { background:#FCFAF3; border:1.5px solid #1B2A78; border-top:6px solid #1B2A78; box-shadow:4px 4px 0 #1B2A78; }
   .card[data-kind="active"]:hover  { transform:translate(-2px,-2px); box-shadow:6px 6px 0 #1B2A78; }
@@ -49,7 +51,7 @@
   .card[data-kind="backlog"] ul.items { border-top-color:#A9A6C2; }
   .flag { font-style:normal; background:#F7E839; padding:0 4px; color:#1B2A78; }
 
-  [contenteditable][data-empty]:empty:before { content:attr(data-empty); color:#B7B4CC; }
+  [contenteditable="true"][data-empty]:empty:before { content:attr(data-empty); color:#B7B4CC; }
 
   .card-tools { position:absolute; top:8px; right:8px; display:flex; gap:6px; opacity:0; transition:opacity .12s ease; }
   .card:hover .card-tools { opacity:1; }
@@ -59,26 +61,38 @@
   .add-item { font-family:'Space Mono',monospace; font-size:12px; letter-spacing:.08em; text-transform:uppercase; border:1.5px dashed #A9A6C2; background:transparent; color:#5B6091; border-radius:8px; padding:11px; cursor:pointer; transition:border-color .12s ease, color .12s ease; }
   .add-item:hover { border-color:#1B2A78; color:#1B2A78; }
 
+  body:not(.can-edit) .card-tools,
+  body:not(.can-edit) .add-item,
+  body:not(.can-edit) .del-bullet { display:none; }
+
   .savebar { position:fixed; bottom:18px; left:50%; transform:translateX(-50%); background:#1B2A78; color:#F4EFE3; font-size:12px; letter-spacing:.1em; text-transform:uppercase; padding:8px 16px; border-radius:999px; opacity:0; transition:opacity .3s ease; pointer-events:none; }
   .savebar.show { opacity:1; }
+  .savebar.err { background:#B3261E; }
 
   .banner { background:#F7E839; color:#1B2A78; font-size:12px; letter-spacing:.06em; text-align:center; padding:7px 14px; }
+
+  .auth { display:flex; align-items:center; gap:8px; font-size:12px; letter-spacing:.06em; }
+  .auth button { font-family:'Space Mono',monospace; font-size:12px; letter-spacing:.08em; text-transform:uppercase; border:1.5px solid #1B2A78; background:#F4EFE3; color:#1B2A78; border-radius:999px; padding:7px 14px; cursor:pointer; }
+  .auth button:hover { background:#1B2A78; color:#F4EFE3; }
+  .auth input { font-family:'Space Mono',monospace; font-size:12px; border:1.5px solid #1B2A78; border-radius:999px; padding:7px 12px; background:#FCFAF3; color:#1B2A78; outline:none; width:210px; }
+  .auth .who { color:#5B6091; }
 </style>
 </head>
 <body>
 
-<div class="banner">PROTOTYPE · Drag cards between columns, hit “+ Add item”, or click any text to edit. (Edits are local for now — shared, synced editing via Supabase is the next step.)</div>
+<div class="banner" id="banner">Loading the roadmap…</div>
 
 <div class="wrap">
 
   <!-- HEADER -->
-  <div style="display:flex; justify-content:space-between; align-items:center; gap:24px;">
+  <div style="display:flex; justify-content:space-between; align-items:center; gap:24px; flex-wrap:wrap;">
     <div style="display:flex; align-items:center; gap:14px;">
       <svg width="44" height="44" viewBox="0 0 44 44" style="display:block; border-radius:8px;"><rect width="44" height="44" rx="8" fill="#1B2A78"/><text x="22" y="31" font-family="Newsreader,Georgia,serif" font-size="24" font-weight="700" fill="#F4EFE3" text-anchor="middle">S</text></svg>
       <span style="font-weight:700; letter-spacing:.26em; font-size:14px; text-transform:uppercase;">Switchyards</span>
     </div>
-    <div style="display:flex; align-items:center; gap:10px; font-size:12px; letter-spacing:.14em; text-transform:uppercase;">
-      <span style="display:inline-flex; align-items:center; gap:8px; padding:8px 15px; background:#1B2A78; color:#F4EFE3; border-radius:999px;"><span style="width:8px; height:8px; border-radius:999px; background:#35C05A;"></span>H2 2026.</span>
+    <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
+      <div class="auth" id="auth"></div>
+      <span style="display:inline-flex; align-items:center; gap:8px; padding:8px 15px; background:#1B2A78; color:#F4EFE3; border-radius:999px; font-size:12px; letter-spacing:.14em; text-transform:uppercase;"><span style="width:8px; height:8px; border-radius:999px; background:#35C05A;"></span>H2 2026.</span>
     </div>
   </div>
 
@@ -89,13 +103,13 @@
     <p style="margin:8px 0 0; max-width:600px; font-size:14px; line-height:1.65; color:#5B6091;">Where the work is, where it's headed, and what's parked for later.</p>
   </div>
 
-  <!-- BOARD (built by script from the data below) -->
+  <!-- BOARD -->
   <div class="board" id="board"></div>
 
   <!-- FOOTER -->
   <div style="margin-top:46px; padding-top:18px; border-top:2px solid #1B2A78; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:#8A88A6;">
     <span>Switchyards Inc. — Product &amp; Engineering</span>
-    <span>Last updated · H2 2026</span>
+    <span id="stamp">Live roadmap</span>
   </div>
 
 </div>
@@ -103,7 +117,12 @@
 <div class="savebar" id="savebar">Saved</div>
 
 <script>
-// ---- The roadmap content. This is the "source" — everything on the board comes from here. ----
+// ================== CONFIG ==================
+const SUPABASE_URL = "https://vramxfveilqzkgnnyfix.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZyYW14ZnZlaWxxemtnbm55Zml4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQyMTIyODAsImV4cCI6MjA5OTc4ODI4MH0.Plcty8r5MkqyadOERQQZ_ydyWPzswpmYMRcqYQOz690";
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// ---- Default content, used until the first shared save ----
 const SEED = {
   columns: [
     { id:"in-progress", label:"In Progress", kind:"active",  dot:"pulse",   badge:"filled" },
@@ -147,13 +166,17 @@ const SEED = {
   }
 };
 
-const KEY = "sy-roadmap-preview";
-const board = document.getElementById("board");
+const board   = document.getElementById("board");
+const banner  = document.getElementById("banner");
 const savebar = document.getElementById("savebar");
-let data = load();
+const authBox = document.getElementById("auth");
+const stamp   = document.getElementById("stamp");
 
-function load(){ try { const s = localStorage.getItem(KEY); if(s) return JSON.parse(s); } catch(e){} return structuredClone(SEED); }
+let data = structuredClone(SEED);
+let canEdit = false;
+let pendingRemote = null;
 
+// ================== RENDER ==================
 function dotHTML(kind){
   if(kind==="pulse")  return '<span style="width:9px;height:9px;border-radius:999px;background:#35C05A;animation:syPulse 1.6s ease-in-out infinite;"></span>';
   if(kind==="square") return '<span style="width:9px;height:9px;border-radius:2px;background:#1B2A78;"></span>';
@@ -170,18 +193,19 @@ function labelColor(kind){ return kind==="backlog" ? "#5B6091" : kind==="later" 
 
 function bulletLi(html){
   const li = document.createElement("li");
-  li.innerHTML = '<span class="mk">›</span><span class="txt" contenteditable data-empty="describe this item…">'+html+'</span><span class="del-bullet" title="remove">×</span>';
+  li.innerHTML = '<span class="mk">›</span><span class="txt" data-empty="describe this item…">'+html+'</span><span class="del-bullet" title="remove">×</span>';
+  li.querySelector(".txt").contentEditable = canEdit;
   li.querySelector(".del-bullet").onclick = () => { li.remove(); save(); };
   return li;
 }
 function makeCard(kind, item){
   const card = document.createElement("article");
-  card.className = "card"; card.dataset.kind = kind; card.draggable = true;
+  card.className = "card"; card.dataset.kind = kind; card.draggable = canEdit;
   const h3 = document.createElement("h3");
-  h3.contentEditable = true; h3.dataset.empty = "Untitled…"; h3.innerHTML = item.title || "";
+  h3.contentEditable = canEdit; h3.dataset.empty = "Untitled…"; h3.innerHTML = item.title || "";
   card.appendChild(h3);
   if(item.sub !== undefined){
-    const p = document.createElement("p"); p.className="sub"; p.contentEditable=true; p.dataset.empty="add a one-line note…"; p.textContent=item.sub;
+    const p = document.createElement("p"); p.className="sub"; p.contentEditable=canEdit; p.dataset.empty="add a one-line note…"; p.textContent=item.sub;
     card.appendChild(p);
   }
   const ul = document.createElement("ul"); ul.className="items";
@@ -195,8 +219,8 @@ function makeCard(kind, item){
   tools.append(addB, delB); card.appendChild(tools);
   return card;
 }
-
 function render(){
+  document.body.classList.toggle("can-edit", canEdit);
   board.innerHTML = "";
   data.columns.forEach(col => {
     const section = document.createElement("section"); section.className="col";
@@ -222,10 +246,11 @@ function render(){
 }
 function refreshBadge(list, slot, kind){ slot.innerHTML = badgeHTML(kind, list.querySelectorAll(".card").length); }
 
-// ---- Drag & drop: reorder within a column and move across columns ----
+// ================== DRAG & DROP ==================
 let dragged = null;
 function wireDnD(list){
   list.addEventListener("dragover", e => {
+    if(!canEdit) return;
     e.preventDefault();
     list.classList.add("drop-hint");
     const after = afterElement(list, e.clientY);
@@ -246,12 +271,11 @@ function afterElement(list, y){
   }
   return best.el;
 }
-board.addEventListener("dragstart", e => { const c = e.target.closest(".card"); if(!c) return; dragged = c; c.classList.add("dragging"); });
+board.addEventListener("dragstart", e => { if(!canEdit) return; const c = e.target.closest(".card"); if(!c) return; dragged = c; c.classList.add("dragging"); });
 board.addEventListener("dragend", () => { if(dragged){ dragged.classList.remove("dragging"); dragged=null; } document.querySelectorAll(".col-list").forEach(l=>l.classList.remove("drop-hint")); save(); });
 
-// ---- Save: read the whole board back out of the DOM into data + localStorage ----
-let saveTimer=null;
-function save(){
+// ================== SAVE / SYNC ==================
+function serialize(){
   const cols = [...board.querySelectorAll(".col-list")];
   cols.forEach(list => {
     const id = list.dataset.col;
@@ -266,13 +290,96 @@ function save(){
     const slot = list.closest(".col").querySelector(".col-head > span");
     refreshBadge(list, slot, kind);
   });
-  try { localStorage.setItem(KEY, JSON.stringify(data)); } catch(e){}
+}
+let saveTimer=null, pushTimer=null;
+function flash(msg, isErr){
+  savebar.textContent = msg;
+  savebar.classList.toggle("err", !!isErr);
   clearTimeout(saveTimer); savebar.classList.add("show");
-  saveTimer = setTimeout(()=>savebar.classList.remove("show"), 900);
+  saveTimer = setTimeout(()=>savebar.classList.remove("show"), isErr ? 3000 : 900);
+}
+function save(){
+  if(!canEdit) return;
+  serialize();
+  clearTimeout(pushTimer);
+  pushTimer = setTimeout(pushToDb, 600);
+}
+async function pushToDb(){
+  flash("Saving…");
+  const { error } = await db.from("roadmap")
+    .update({ data: data, updated_at: new Date().toISOString() })
+    .eq("id", 1);
+  if(error){ flash("Couldn't save — check your login", true); }
+  else { flash("Saved for everyone"); }
 }
 board.addEventListener("input", e => { if(e.target.isContentEditable) save(); });
+board.addEventListener("focusout", () => {
+  if(pendingRemote && !board.contains(document.activeElement)){
+    data = pendingRemote; pendingRemote = null; render();
+  }
+});
 
-render();
+// ================== AUTH ==================
+function renderAuth(session){
+  authBox.innerHTML = "";
+  if(session){
+    const who = document.createElement("span"); who.className="who"; who.textContent = session.user.email;
+    const out = document.createElement("button"); out.textContent = "Log out";
+    out.onclick = async () => { await db.auth.signOut(); };
+    authBox.append(who, out);
+    banner.textContent = "You're editing the live roadmap — changes save for everyone automatically.";
+  } else {
+    const btn = document.createElement("button"); btn.textContent = "Log in to edit";
+    btn.onclick = () => {
+      authBox.innerHTML = "";
+      const input = document.createElement("input"); input.type="email"; input.placeholder="you@switchyards.com";
+      const send = document.createElement("button"); send.textContent = "Send link";
+      send.onclick = async () => {
+        const email = input.value.trim();
+        if(!email){ input.focus(); return; }
+        send.disabled = true; send.textContent = "Sending…";
+        const { error } = await db.auth.signInWithOtp({ email, options: { emailRedirectTo: location.origin + location.pathname } });
+        if(error){ flash("Couldn't send login email", true); send.disabled=false; send.textContent="Send link"; }
+        else { authBox.innerHTML = '<span class="who">Check your email for the login link ✓</span>'; }
+      };
+      input.addEventListener("keydown", e => { if(e.key==="Enter") send.onclick(); });
+      authBox.append(input, send);
+      input.focus();
+    };
+    authBox.append(btn);
+    banner.textContent = "Live roadmap — you're viewing. Log in (top right) to edit.";
+  }
+}
+function setAuth(session){
+  canEdit = !!session;
+  renderAuth(session);
+  render();
+}
+
+// ================== LIVE UPDATES ==================
+db.channel("roadmap-live")
+  .on("postgres_changes", { event:"UPDATE", schema:"public", table:"roadmap", filter:"id=eq.1" }, payload => {
+    const incoming = payload.new && payload.new.data;
+    if(!incoming || !incoming.columns) return;
+    if(JSON.stringify(incoming) === JSON.stringify(data)) return;
+    const editingNow = board.contains(document.activeElement) && document.activeElement.isContentEditable;
+    if(editingNow){ pendingRemote = incoming; }
+    else { data = incoming; render(); }
+  })
+  .subscribe();
+
+// ================== BOOT ==================
+(async function init(){
+  try{
+    const { data: row, error } = await db.from("roadmap").select("data, updated_at").eq("id", 1).maybeSingle();
+    if(!error && row && row.data && row.data.columns){ data = row.data; }
+    if(!error && row && row.updated_at){ stamp.textContent = "Live · updated " + new Date(row.updated_at).toLocaleDateString(); }
+  }catch(e){ /* fall back to SEED */ }
+  render();
+  db.auth.onAuthStateChange((_evt, session) => setAuth(session));
+  const { data: s } = await db.auth.getSession();
+  setAuth(s ? s.session : null);
+})();
 </script>
 </body>
 </html>
