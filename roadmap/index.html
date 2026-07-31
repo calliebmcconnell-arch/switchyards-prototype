@@ -15,7 +15,7 @@
   @keyframes syPulse { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:.3;transform:scale(.6);} }
 
   .wrap { max-width:1680px; margin:0 auto; padding:52px 60px 68px; }
-  .board { display:grid; grid-template-columns:repeat(4,1fr); gap:22px; align-items:start; margin-top:38px; min-width:1080px; }
+  .board { display:grid; grid-template-columns:repeat(5,1fr); gap:22px; align-items:start; margin-top:38px; min-width:1360px; }
   .col { display:flex; flex-direction:column; gap:16px; }
   .col-head { display:flex; align-items:center; justify-content:space-between; padding-bottom:12px; border-bottom:2px solid #1B2A78; }
   .col-list { display:flex; flex-direction:column; gap:14px; min-height:40px; border-radius:10px; transition:background .12s ease; }
@@ -25,6 +25,8 @@
   body.can-edit .card { cursor:grab; }
   body.can-edit .card:active { cursor:grabbing; }
   .card.dragging { opacity:.4; }
+  .card[data-kind="done"]    { background:#F0F5EE; border:1.5px solid #9FC3A3; }
+  .card[data-kind="done"]:hover    { transform:translate(-2px,-2px); box-shadow:5px 5px 0 #2E9E4F; border-color:#2E9E4F; }
   .card[data-kind="active"]  { background:#FCFAF3; border:1.5px solid #1B2A78; border-top:6px solid #1B2A78; box-shadow:4px 4px 0 #1B2A78; }
   .card[data-kind="active"]:hover  { transform:translate(-2px,-2px); box-shadow:6px 6px 0 #1B2A78; }
   .card[data-kind="planned"] { background:#FCFAF3; border:1.5px solid #1B2A78; }
@@ -35,6 +37,8 @@
   .card[data-kind="later"]:hover { opacity:1; border-color:#8A88A6; }
 
   .card h3 { margin:0; font-family:'Newsreader',serif; font-weight:600; font-size:20px; line-height:1.15; outline:none; }
+  .card[data-kind="done"] h3 { font-weight:500; color:#2F5A38; }
+  .card[data-kind="done"] ul.items { border-top-color:#BcD3BF; }
   .card[data-kind="backlog"] h3 { font-weight:500; font-size:19px; color:#3B406E; }
   .card[data-kind="later"] h3 { font-weight:500; font-size:19px; color:#5B6091; }
   .card .sub { margin:5px 0 0; font-size:12px; line-height:1.45; color:#5B6091; outline:none; }
@@ -125,12 +129,14 @@ const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // ---- Default content, used until the first shared save ----
 const SEED = {
   columns: [
+    { id:"done",        label:"Done",        kind:"done",    dot:"check",   badge:"done" },
     { id:"in-progress", label:"In Progress", kind:"active",  dot:"pulse",   badge:"filled" },
     { id:"planned",     label:"Planned",     kind:"planned", dot:"square",  badge:"outline" },
     { id:"backlog",     label:"Backlog",     kind:"backlog", dot:"hollow",  badge:"muted" },
     { id:"later",       label:"Later",       kind:"later",   dot:"arrow",   badge:"faint" },
   ],
   items: {
+    "done": [],
     "in-progress": [
       { title:"Checkout Foundation", sub:"Staging & release process foundation", bullets:[] },
       { title:"Prepare for App Handover", bullets:["Reviewing app and documenting findings"] },
@@ -176,20 +182,37 @@ let data = structuredClone(SEED);
 let canEdit = false;
 let pendingRemote = null;
 
+// Reconcile loaded data against the current column config: add any columns
+// defined in SEED that a saved row predates (e.g. "Done"), ordered by SEED,
+// while preserving any extra columns the DB may carry. Persists on next save.
+function reconcileColumns(d){
+  d.columns = Array.isArray(d.columns) ? d.columns : [];
+  d.items = d.items || {};
+  const byId = new Map(d.columns.map(c => [c.id, c]));
+  const merged = [];
+  SEED.columns.forEach(sc => { merged.push(byId.get(sc.id) || structuredClone(sc)); byId.delete(sc.id); });
+  d.columns.forEach(c => { if(byId.has(c.id)){ merged.push(c); byId.delete(c.id); } });
+  d.columns = merged;
+  d.columns.forEach(c => { if(!Array.isArray(d.items[c.id])) d.items[c.id] = []; });
+  return d;
+}
+
 // ================== RENDER ==================
 function dotHTML(kind){
+  if(kind==="check")  return '<span style="width:15px;height:15px;border-radius:999px;background:#2E9E4F;display:inline-flex;align-items:center;justify-content:center;color:#F4EFE3;font-size:9px;font-weight:700;line-height:1;">&#10003;</span>';
   if(kind==="pulse")  return '<span style="width:9px;height:9px;border-radius:999px;background:#35C05A;animation:syPulse 1.6s ease-in-out infinite;"></span>';
   if(kind==="square") return '<span style="width:9px;height:9px;border-radius:2px;background:#1B2A78;"></span>';
   if(kind==="hollow") return '<span style="width:9px;height:9px;border-radius:2px;border:2px solid #1B2A78;"></span>';
   return '<span style="font-size:13px;">→</span>';
 }
 function badgeHTML(kind,n){
+  if(kind==="done")    return '<span style="font-size:12px;color:#F4EFE3;background:#2E9E4F;padding:2px 9px;border-radius:999px;">'+n+'</span>';
   if(kind==="filled")  return '<span style="font-size:12px;color:#F4EFE3;background:#1B2A78;padding:2px 9px;border-radius:999px;">'+n+'</span>';
   if(kind==="outline") return '<span style="font-size:12px;color:#1B2A78;border:1.5px solid #1B2A78;padding:1px 8px;border-radius:999px;">'+n+'</span>';
   if(kind==="muted")   return '<span style="font-size:12px;color:#5B6091;border:1.5px solid #B7B4CC;padding:1px 8px;border-radius:999px;">'+n+'</span>';
   return '<span style="font-size:12px;color:#8A88A6;border:1.5px solid #CFCCDE;padding:1px 8px;border-radius:999px;">'+n+'</span>';
 }
-function labelColor(kind){ return kind==="backlog" ? "#5B6091" : kind==="later" ? "#8A88A6" : "#1B2A78"; }
+function labelColor(kind){ return kind==="done" ? "#2E7D3A" : kind==="backlog" ? "#5B6091" : kind==="later" ? "#8A88A6" : "#1B2A78"; }
 
 function bulletLi(html){
   const li = document.createElement("li");
@@ -363,6 +386,7 @@ db.channel("roadmap-live")
   .on("postgres_changes", { event:"UPDATE", schema:"public", table:"roadmap", filter:"id=eq.1" }, payload => {
     const incoming = payload.new && payload.new.data;
     if(!incoming || !incoming.columns) return;
+    reconcileColumns(incoming);
     if(JSON.stringify(incoming) === JSON.stringify(data)) return;
     const editingNow = board.contains(document.activeElement) && document.activeElement.isContentEditable;
     if(editingNow){ pendingRemote = incoming; }
@@ -374,7 +398,7 @@ db.channel("roadmap-live")
 (async function init(){
   try{
     const { data: row, error } = await db.from("roadmap").select("data, updated_at").eq("id", 1).maybeSingle();
-    if(!error && row && row.data && row.data.columns){ data = row.data; }
+    if(!error && row && row.data && row.data.columns){ data = reconcileColumns(row.data); }
     if(!error && row && row.updated_at){ stamp.textContent = "Live · updated " + new Date(row.updated_at).toLocaleDateString(); }
   }catch(e){ /* fall back to SEED */ }
   render();
