@@ -75,11 +75,6 @@
 
   .banner { background:#F7E839; color:#1B2A78; font-size:12px; letter-spacing:.06em; text-align:center; padding:7px 14px; }
 
-  .auth { display:flex; align-items:center; gap:8px; font-size:12px; letter-spacing:.06em; }
-  .auth button { font-family:'Space Mono',monospace; font-size:12px; letter-spacing:.08em; text-transform:uppercase; border:1.5px solid #1B2A78; background:#F4EFE3; color:#1B2A78; border-radius:999px; padding:7px 14px; cursor:pointer; }
-  .auth button:hover { background:#1B2A78; color:#F4EFE3; }
-  .auth input { font-family:'Space Mono',monospace; font-size:12px; border:1.5px solid #1B2A78; border-radius:999px; padding:7px 12px; background:#FCFAF3; color:#1B2A78; outline:none; width:210px; }
-  .auth .who { color:#5B6091; }
 </style>
 </head>
 <body>
@@ -95,7 +90,6 @@
       <span style="font-weight:700; letter-spacing:.26em; font-size:14px; text-transform:uppercase;">Switchyards</span>
     </div>
     <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
-      <div class="auth" id="auth"></div>
       <span style="display:inline-flex; align-items:center; gap:8px; padding:8px 15px; background:#1B2A78; color:#F4EFE3; border-radius:999px; font-size:12px; letter-spacing:.14em; text-transform:uppercase;"><span style="width:8px; height:8px; border-radius:999px; background:#35C05A;"></span>H2 2026.</span>
     </div>
   </div>
@@ -175,11 +169,10 @@ const SEED = {
 const board   = document.getElementById("board");
 const banner  = document.getElementById("banner");
 const savebar = document.getElementById("savebar");
-const authBox = document.getElementById("auth");
 const stamp   = document.getElementById("stamp");
 
 let data = structuredClone(SEED);
-let canEdit = false;
+let canEdit = true;
 let pendingRemote = null;
 
 // Reconcile loaded data against the current column config: add any columns
@@ -332,7 +325,7 @@ async function pushToDb(){
   const { error } = await db.from("roadmap")
     .update({ data: data, updated_at: new Date().toISOString() })
     .eq("id", 1);
-  if(error){ flash("Couldn't save — check your login", true); }
+  if(error){ flash("Couldn't save — try again", true); }
   else { flash("Saved for everyone"); }
 }
 board.addEventListener("input", e => { if(e.target.isContentEditable) save(); });
@@ -341,45 +334,6 @@ board.addEventListener("focusout", () => {
     data = pendingRemote; pendingRemote = null; render();
   }
 });
-
-// ================== AUTH (shared password) ==================
-const EDITOR_EMAIL = "roadmap-editor@switchyards.com"; // fixed shared editor account; the password is the gate
-function renderAuth(session){
-  authBox.innerHTML = "";
-  if(session){
-    const who = document.createElement("span"); who.className="who"; who.textContent = "Editing ✓";
-    const out = document.createElement("button"); out.textContent = "Done";
-    out.onclick = async () => { await db.auth.signOut(); };
-    authBox.append(who, out);
-    banner.textContent = "You're editing the live roadmap — changes save for everyone automatically.";
-  } else {
-    const btn = document.createElement("button"); btn.textContent = "Enter password to edit";
-    btn.onclick = () => {
-      authBox.innerHTML = "";
-      const input = document.createElement("input"); input.type="password"; input.placeholder="password"; input.style.width="150px";
-      const send = document.createElement("button"); send.textContent = "Unlock";
-      send.onclick = async () => {
-        const pw = input.value;
-        if(!pw){ input.focus(); return; }
-        send.disabled = true; send.textContent = "Checking…";
-        const { error } = await db.auth.signInWithPassword({ email: EDITOR_EMAIL, password: pw });
-        if(error){ flash("Wrong password", true); send.disabled=false; send.textContent="Unlock"; input.value=""; input.focus(); }
-        // success is handled by onAuthStateChange
-      };
-      input.addEventListener("keydown", e => { if(e.key==="Enter") send.onclick(); });
-      const cancel = document.createElement("button"); cancel.textContent="✕"; cancel.title="cancel"; cancel.onclick=()=>renderAuth(null);
-      authBox.append(input, send, cancel);
-      input.focus();
-    };
-    authBox.append(btn);
-    banner.textContent = "Live roadmap — you're viewing. Enter the password (top right) to edit.";
-  }
-}
-function setAuth(session){
-  canEdit = !!session;
-  renderAuth(session);
-  render();
-}
 
 // ================== LIVE UPDATES ==================
 db.channel("roadmap-live")
@@ -401,10 +355,8 @@ db.channel("roadmap-live")
     if(!error && row && row.data && row.data.columns){ data = reconcileColumns(row.data); }
     if(!error && row && row.updated_at){ stamp.textContent = "Live · updated " + new Date(row.updated_at).toLocaleDateString(); }
   }catch(e){ /* fall back to SEED */ }
+  banner.textContent = "Live roadmap — edit anything on the board; changes save for everyone automatically.";
   render();
-  db.auth.onAuthStateChange((_evt, session) => setAuth(session));
-  const { data: s } = await db.auth.getSession();
-  setAuth(s ? s.session : null);
 })();
 </script>
 </body>
